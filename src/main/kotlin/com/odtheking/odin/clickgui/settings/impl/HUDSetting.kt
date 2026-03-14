@@ -30,8 +30,8 @@ class HUDSetting(
 
     constructor(
         name: String,
-        x: Int,
-        y: Int,
+        x: Float,
+        y: Float,
         scale: Float,
         toggleable: Boolean,
         description: String,
@@ -107,8 +107,8 @@ class HUDSetting(
 
     override fun read(element: JsonElement, gson: Gson) {
         if (element !is JsonObject) return
-        value.x = element.get("x")?.asInt ?: value.x
-        value.y = element.get("y")?.asInt ?: value.y
+        value.x = element.get("x")?.asFloat ?: value.x
+        value.y = element.get("y")?.asFloat ?: value.y
         value.scale = element.get("scale")?.asFloat ?: value.scale
         value.enabled = if (toggleable) element.get("enabled")?.asBoolean ?: value.enabled else true
     }

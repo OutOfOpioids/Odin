@@ -27,7 +27,7 @@ object Vesuvius : Module(
     private val hideClaimed by BooleanSetting("Hide Claimed", true, desc = "Hides chests that have already been claimed.")
     private val useSalvagePrices by BooleanSetting("Use Salvaged", false, desc = "Uses the essence you would get by salvaging the piece instead.")
 
-    private val vesuviusHud by HUD("Croesus Chest HUD", "Displays all chest contents with prices, sorted by profit.") {
+    private val vesuviusHud by HUD("Vesuvius Chest HUD", "Displays all chest contents with prices, sorted by profit.") {
         if (!it) return@HUD 0 to 0
         drawOverlay(true)
     }
@@ -58,7 +58,7 @@ object Vesuvius : Module(
                 guiGraphics.pose().pushMatrix()
                 val sf = mc.window.guiScale
                 guiGraphics.pose().scale(1f / sf, 1f / sf)
-                guiGraphics.pose().translate(vesuviusHud.x.toFloat(), vesuviusHud.y.toFloat())
+                guiGraphics.pose().translate(vesuviusHud.x * guiGraphics.guiWidth(), vesuviusHud.y * guiGraphics.guiHeight())
                 guiGraphics.pose().scale(vesuviusHud.scale)
 
                 guiGraphics.drawOverlay(false)

@@ -25,8 +25,8 @@ object HudManager : Screen(Component.literal("HUD Manager")) {
     override fun init() {
         for (hud in hudSettingsCache) {
             if (hud.isEnabled) {
-                hud.value.x = hud.value.x.coerceIn(0, (mc.window.screenWidth - (hud.value.width * hud.value.scale)).toInt())
-                hud.value.y = hud.value.y.coerceIn(0, (mc.window.screenHeight - (hud.value.height * hud.value.scale)).toInt())
+                hud.value.x = hud.value.x.coerceIn(0.0f, (mc.window.width - (hud.value.width * hud.value.scale)) / mc.window.guiScaledWidth)
+                hud.value.y = hud.value.y.coerceIn(0.0f, (mc.window.height - (hud.value.height * hud.value.scale)) / mc.window.guiScaledHeight)
             }
         }
         super.init()
@@ -36,8 +36,8 @@ object HudManager : Screen(Component.literal("HUD Manager")) {
         super.render(context, mouseX, mouseY, deltaTicks)
 
         dragging?.let {
-            it.x = (odinMouseX + deltaX).coerceIn(0f, (mc.window.screenWidth - (it.width * it.scale))).toInt()
-            it.y = (odinMouseY + deltaY).coerceIn(0f, (mc.window.screenHeight - (it.height * it.scale))).toInt()
+            it.x = ((odinMouseX + deltaX) / mc.window.guiScaledWidth).coerceIn(0f, (mc.window.width - (it.width * it.scale)) / mc.window.guiScaledWidth)
+            it.y = ((odinMouseY + deltaY) / mc.window.guiScaledHeight).coerceIn(0f, (mc.window.height - (it.height * it.scale)) / mc.window.guiScaledHeight)
         }
 
         context.pose()?.pushMatrix()
@@ -49,10 +49,12 @@ object HudManager : Screen(Component.literal("HUD Manager")) {
         }
 
         hudSettingsCache.firstOrNull { it.isEnabled && it.value.isHovered() }?.let { hoveredHud ->
+            val xPos: Float = hoveredHud.value.x * context.guiWidth()
+            val yPos: Float = hoveredHud.value.y * context.guiHeight()
             context.pose().pushMatrix()
             context.pose().translate(
-                (hoveredHud.value.x + hoveredHud.value.width * hoveredHud.value.scale + 10f),
-                hoveredHud.value.y.toFloat(),
+                (xPos + hoveredHud.value.width * hoveredHud.value.scale + 10f),
+                yPos,
             )
             context.pose().scale(2f, 2f)
             context.drawString(mc.font, hoveredHud.name, 0, 0, Colors.WHITE.rgba)
@@ -74,10 +76,12 @@ object HudManager : Screen(Component.literal("HUD Manager")) {
 
     override fun mouseClicked(mouseButtonEvent: MouseButtonEvent, bl: Boolean): Boolean {
         hudSettingsCache.firstOrNull { it.isEnabled && it.value.isHovered() }?.let { hovered ->
+            val xPos: Float = hovered.value.x * mc.window.guiScaledWidth
+            val yPos: Float = hovered.value.y * mc.window.guiScaledHeight
             dragging = hovered.value
 
-            deltaX = (hovered.value.x - odinMouseX)
-            deltaY = (hovered.value.y - odinMouseY)
+            deltaX = (xPos - odinMouseX)
+            deltaY = (yPos - odinMouseY)
             return true
         }
 
@@ -94,10 +98,10 @@ object HudManager : Screen(Component.literal("HUD Manager")) {
             when (keyEvent.key) {
                 GLFW.GLFW_KEY_EQUAL -> hovered.value.scale = (hovered.value.scale + 0.1f).coerceIn(1f, 10f)
                 GLFW.GLFW_KEY_MINUS -> hovered.value.scale = (hovered.value.scale - 0.1f).coerceIn(1f, 10f)
-                GLFW.GLFW_KEY_RIGHT -> hovered.value.x += 10
-                GLFW.GLFW_KEY_LEFT -> hovered.value.x -= 10
-                GLFW.GLFW_KEY_UP -> hovered.value.y -= 10
-                GLFW.GLFW_KEY_DOWN -> hovered.value.y += 10
+                GLFW.GLFW_KEY_RIGHT -> hovered.value.x += 0.005f
+                GLFW.GLFW_KEY_LEFT -> hovered.value.x -= 0.005f
+                GLFW.GLFW_KEY_UP -> hovered.value.y -= 0.01f
+                GLFW.GLFW_KEY_DOWN -> hovered.value.y += 0.01f
             }
         }
 
@@ -111,8 +115,8 @@ object HudManager : Screen(Component.literal("HUD Manager")) {
 
     fun resetHUDS() {
         hudSettingsCache.forEach {
-            it.value.x = 10
-            it.value.y = 10
+            it.value.x = 0.005f
+            it.value.y = 0.01f
             it.value.scale = 2f
         }
     }

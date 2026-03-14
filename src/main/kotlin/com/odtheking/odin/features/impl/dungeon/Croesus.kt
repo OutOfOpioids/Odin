@@ -95,7 +95,7 @@ object Croesus : Module(
                 guiGraphics.pose().pushMatrix()
                 val sf = mc.window.guiScale
                 guiGraphics.pose().scale(1f / sf, 1f / sf)
-                guiGraphics.pose().translate(croesusHud.x.toFloat(), croesusHud.y.toFloat())
+                guiGraphics.pose().translate(croesusHud.x * guiGraphics.guiWidth(), croesusHud.y * guiGraphics.guiHeight())
                 guiGraphics.pose().scale(croesusHud.scale)
 
                 guiGraphics.drawOverlay(false)

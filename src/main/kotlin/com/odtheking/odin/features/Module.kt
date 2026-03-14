@@ -118,8 +118,8 @@ abstract class Module(
         name: String,
         desc: String,
         toggleable: Boolean = true,
-        x: Int = 10,
-        y: Int = 10,
+        x: Float = 0.005f,
+        y: Float = 0.01f,
         scale: Float = 2f,
         block: GuiGraphics.(example: Boolean) -> Pair<Int, Int>
     ): HUDSetting = HUDSetting(name, x, y, scale, toggleable, desc, this, block)
