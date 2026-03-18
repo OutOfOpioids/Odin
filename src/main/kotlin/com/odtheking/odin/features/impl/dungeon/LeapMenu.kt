@@ -18,7 +18,7 @@ import com.odtheking.odin.utils.ui.getQuadrant
 import com.odtheking.odin.utils.ui.rendering.NVGPIPRenderer
 import com.odtheking.odin.utils.ui.rendering.NVGRenderer
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import org.lwjgl.glfw.GLFW
 
 object LeapMenu : Module(
@@ -48,7 +48,7 @@ object LeapMenu : Module(
     private val leapAnnounce by BooleanSetting("Leap Announce", false, desc = "Announces when you leap to a player.")
     private val hoverHandler = List(4) { HoverHandler(200L) }
 
-    private val EMPTY = DungeonPlayer("Empty", DungeonClass.Unknown, 0, ResourceLocation.withDefaultNamespace("textures/entity/steve.png"))
+    private val EMPTY = DungeonPlayer("Empty", DungeonClass.Unknown, 0, Identifier.withDefaultNamespace("textures/entity/steve.png"))
     private val leapedRegex = Regex("You have teleported to (\\w{1,16})!")
     private val imageCacheMap = mutableMapOf<String, Int>()
     const val BOX_WIDTH = 800f
@@ -57,7 +57,7 @@ object LeapMenu : Module(
     init {
         on<GuiEvent.Draw> {
             val chest = (screen as? AbstractContainerScreen<*>) ?: return@on
-            if (chest.title?.string?.equalsOneOf("Spirit Leap", "Teleport to Player") == false || leapTeammates.isEmpty() || leapTeammates.all { it == EMPTY }) return@on
+            if (!chest.title.string.equalsOneOf("Spirit Leap", "Teleport to Player") || leapTeammates.isEmpty() || leapTeammates.all { it == EMPTY }) return@on
 
             val halfWidth = mc.window.screenWidth / 2f
             val halfHeight = mc.window.screenHeight / 2f
@@ -86,7 +86,7 @@ object LeapMenu : Module(
                     NVGRenderer.rect(x - expandValue ,y - expandValue, BOX_WIDTH + expandValue * 2, BOX_HEIGHT + expandValue * 2, (if (colorStyle) player.clazz.color else backgroundColor).rgba, 12f)
                     val locationSkin = player.locationSkin ?: mc.player?.skin?.body?.id() ?: return@forEachIndexed
                     imageCacheMap.getOrPut(locationSkin.path) {
-                        NVGRenderer.createNVGImage((mc.textureManager?.getTexture(locationSkin)?.texture as? GlTexture)?.glId() ?: 0, 64, 64)
+                        NVGRenderer.createNVGImage((mc.textureManager.getTexture(locationSkin).texture as? GlTexture)?.glId() ?: 0, 64, 64)
                     }.let { glTextureId ->
                         NVGRenderer.image(glTextureId, 64, 64, 8, 8, 8, 8, x + 30f, y + 30f, 240f, 240f, 9f)
                     }
@@ -100,7 +100,7 @@ object LeapMenu : Module(
 
         on<GuiEvent.DrawBackground> {
             val chest = (screen as? AbstractContainerScreen<*>) ?: return@on
-            if (chest.title?.string?.equalsOneOf("Spirit Leap", "Teleport to Player") == false || leapTeammates.isEmpty() || leapTeammates.all { it == EMPTY }) return@on
+            if (!chest.title.string.equalsOneOf("Spirit Leap", "Teleport to Player") || leapTeammates.isEmpty() || leapTeammates.all { it == EMPTY }) return@on
             cancel()
         }
 
@@ -117,7 +117,7 @@ object LeapMenu : Module(
             val keybindList =
                 if(keybindType == 0) listOf(topLeftKeybind, topRightKeybind, bottomLeftKeybind, bottomRightKeybind)
                 else listOf(archerKeybind, berserkerKeybind, healerKeybind, mageKeybind, tankKeybind)
-            if (chest.title?.string?.equalsOneOf("Spirit Leap", "Teleport to Player") == false || keybindList.none { it.value == input.key() } || leapTeammates.isEmpty()) return@on
+            if (!chest.title.string.equalsOneOf("Spirit Leap", "Teleport to Player") || keybindList.none { it.value == input.key() } || leapTeammates.isEmpty()) return@on
 
             val index = if(keybindType == 0) keybindList.indexOfFirst { it.value == input.key() }
             else DungeonClass.entries.find { clazz -> clazz.ordinal == keybindList.indexOfFirst { it.value == input.key() } }?.let { clazz -> leapTeammates.indexOfFirst { it.clazz == clazz } } ?: return@on
@@ -138,7 +138,7 @@ object LeapMenu : Module(
 
     fun GuiEvent.mouseTrigger() {
         val chest = (screen as? AbstractContainerScreen<*>) ?: return
-        if (chest.title?.string?.equalsOneOf("Spirit Leap", "Teleport to Player") == false || leapTeammates.isEmpty() || leapTeammates.all { it == EMPTY }) return
+        if (!chest.title.string.equalsOneOf("Spirit Leap", "Teleport to Player") || leapTeammates.isEmpty() || leapTeammates.all { it == EMPTY }) return
 
         val quadrant = getQuadrant()
         if ((type.equalsOneOf(1,2,3)) && leapTeammates.size < quadrant) return
@@ -153,7 +153,7 @@ object LeapMenu : Module(
 
     private fun leapTo(name: String, screenHandler: AbstractContainerScreen<*>) {
         val index = screenHandler.menu.slots.subList(11, 16).firstOrNull {
-            it.item?.hoverName?.string?.substringAfter(' ').equals(name.noControlCodes, ignoreCase = true)
+            it.item.hoverName.string.substringAfter(' ').equals(name.noControlCodes, ignoreCase = true)
         }?.index ?: return
         mc.player?.clickSlot(screenHandler.menu.containerId, index)
         modMessage("Teleporting to $name.")

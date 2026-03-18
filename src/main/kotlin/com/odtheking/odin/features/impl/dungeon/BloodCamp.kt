@@ -22,7 +22,7 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.decoration.ArmorStand
-import net.minecraft.world.entity.monster.Zombie
+import net.minecraft.world.entity.monster.zombie.Zombie
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
@@ -72,7 +72,7 @@ object BloodCamp : Module(
             if (!DungeonUtils.inClear) return@onReceive
 
             val entity = getEntity(level) as? ArmorStand ?: return@onReceive
-            if (currentWatcherEntity?.let { it.distanceTo(entity) <= 20 } != true || entity.getItemBySlot(EquipmentSlot.HEAD).item != Items.PLAYER_HEAD || entity.getItemBySlot(EquipmentSlot.HEAD)?.texture !in allowedMobSkulls) return@onReceive
+            if (currentWatcherEntity?.let { it.distanceTo(entity) <= 20 } != true || entity.getItemBySlot(EquipmentSlot.HEAD).item != Items.PLAYER_HEAD || entity.getItemBySlot(EquipmentSlot.HEAD).texture !in allowedMobSkulls) return@onReceive
 
             val packetVector = Vec3(entity.x + (xa / 4096), entity.y + (ya / 4096), entity.z + (za / 4096))
 
@@ -119,7 +119,7 @@ object BloodCamp : Module(
                 if (partyMoveTime) sendCommand("pc Watcher will move in ${moveTimeSeconds?.toFixed()}s.")
                 if (sendMoveTime) modMessage("Watcher will move in ${moveTimeSeconds?.toFixed()}s.")
 
-                schedule(predTicks.toInt()) {
+                schedule(predTicks.toInt(), true) {
                     if (killTitle) alert("Kill Mobs")
                     moveTimeSeconds = null
                 }
@@ -159,7 +159,7 @@ object BloodCamp : Module(
         }
 
         on<RenderBossBarEvent> {
-            if (!watcherBar || !DungeonUtils.inClear || bossBar.name == null || bossBar.name?.string != "§c§lThe Watcher") return@on
+            if (!watcherBar || !DungeonUtils.inClear || bossBar.name.string != "§c§lThe Watcher") return@on
             val amount = 12 + (DungeonUtils.floor?.floorNumber ?: 0)
             bossBar.name = Component.literal(bossBar.progress.takeIf { it >= 0.05 }?.let { "${bossBar.name.string} ${(amount * it).roundToInt()}/$amount" } ?: return@on)
         }

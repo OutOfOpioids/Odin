@@ -110,7 +110,7 @@ object Etherwarp : Module(
     }
 
     data class EtherPos(val succeeded: Boolean, val pos: BlockPos?, val state: BlockState?) {
-        val vec3: Vec3 by lazy { Vec3(pos) }
+        val vec3: Vec3 by lazy { Vec3(pos ?: BlockPos.ZERO)  }
 
         companion object {
             val NONE = EtherPos(false, null, null)
@@ -130,7 +130,7 @@ object Etherwarp : Module(
         } else 1.62
 
         val startPos = position.addVec(y = eyeHeight)
-        val endPos = player.lookAngle?.multiply(distance, distance, distance)?.add(startPos) ?: return EtherPos.NONE
+        val endPos = player.lookAngle.multiply(distance, distance, distance).add(startPos)
         return traverseVoxels(startPos, endPos, etherWarp).takeUnless { it == EtherPos.NONE && returnEnd } ?: EtherPos(true, BlockPos.containing(endPos), null)
     }
 
@@ -171,7 +171,7 @@ object Etherwarp : Module(
                 SectionPos.blockToSectionCoord(blockPos.x),
                 SectionPos.blockToSectionCoord(blockPos.z)
             ) ?: return EtherPos.NONE
-            val currentBlock = chunk.getBlockState(blockPos).takeIf { it.block is Block } ?: return EtherPos.NONE
+            val currentBlock = chunk.getBlockState(blockPos)
 
             val currentBlockId = Block.getId(currentBlock.block.defaultBlockState())
 
@@ -243,10 +243,10 @@ object Etherwarp : Module(
         PistonHeadBlock::class, WoolCarpetBlock::class, WebBlock::class,
         DryVegetationBlock::class, SmallDripleafBlock::class, LeverBlock::class,
         NetherWartBlock::class, NetherPortalBlock::class, RedStoneWireBlock::class,
-        ComparatorBlock::class, RedstoneTorchBlock::class, RepeaterBlock::class, VineBlock::class
+        ComparatorBlock::class, RedstoneTorchBlock::class, RepeaterBlock::class, BigDripleafStemBlock::class
     )
 
-    private val validEtherwarpFeetIds = BitSet(0).apply {
+    private val validEtherwarpFeetIds = BitSet().apply {
         BuiltInRegistries.BLOCK.forEach { block ->
             if (validTypes.any { it.isInstance(block) }) set(Block.getId(block.defaultBlockState()))
         }
